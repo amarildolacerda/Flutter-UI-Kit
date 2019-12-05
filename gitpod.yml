@@ -1,0 +1,51 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 6080
+  - port: 33501
+
+tasks:
+  - before: |
+      export PATH=$FLUTTER_HOME/bin:$ANDROID_HOME/bin:$ANDROID_HOME/platform-tools:$PATH
+      mkdir -p /home/gitpod/.android
+      touch /home/gitpod/.android/repositories.cfg
+    init: |
+
+      # Install Chrome
+      wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      dpkg -i google-chrome-stable_current_amd64.deb && apt-get -fy install
+      echo y | rm -f  google-chrome-stable_current_amd64.deb
+      echo y | rm -f core*
+
+      echo "Installing Flutter SDK..."
+      cd /workspace && wget -qO flutter_sdk.tar.xz https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_v1.9.1+hotfix.4-stable.tar.xz && tar -xf flutter_sdk.tar.xz && rm -f flutter_sdk.tar.xz
+      echo "Installing Android SDK..."
+      mkdir -p /workspace/android-sdk && cd /workspace/android-sdk && wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && echo A | unzip -qq sdk-tools-linux-4333796.zip && rm -f sdk-tools-linux-4333796.zip
+      echo y | /workspace/android-sdk/tools/bin/sdkmanager "platform-tools" "platforms;android-28" "build-tools;28.0.3"
+      echo "Init Flutter..."
+      flutter channel master
+      flutter upgrade
+      yes | flutter doctor --android-licenses
+      cd /workspace/gitpod-flutter
+      flutter pub get
+      flutter config --enable-web
+      flutter doctor
+    command: |
+      echo "Ready to go!"
+  - command: |
+      export PATH=$FLUTTER_HOME/bin:$ANDROID_HOME/bin:$ANDROID_HOME/platform-tools:$PATH
+      flutter config --enable-web
+      flutter upgrade
+      #flutter pub get
+      
+      #flutter doctor
+      echo "Ready to start!"
+
+  #- command: "/usr/bin/google-chrome http://localhost:33501"
+
+vscode:
+  extensions:
+    - Dart-Code.dart-code@3.5.0-beta.1:Wg2nTABftVR/Dry4tqeY1w==
+    - Dart-Code.flutter@3.5.0:/kOacEWdiDRLyN/idUiM4A==
+    - Nash.awesome-flutter-snippets@2.0.3:6jLJSOqEGV5k8R0xYG7Oqg==
